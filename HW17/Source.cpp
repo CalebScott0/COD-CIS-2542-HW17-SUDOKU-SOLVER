@@ -30,13 +30,15 @@
 #include <iostream>
 #include <vector>
 
-void PrintFourByFourGrid(const std::vector<int> & grid)
+const int SIZE = 9;
+
+void PrintNineByNineGrid(const std::vector<int> & grid)
 {
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < SIZE; ++i)
 	{
-		for (int j = 0; j < 4; ++j)
+		for (int j = 0; j < SIZE; ++j)
 		{
-			std::cout << grid[(i << 2) + j] << " ";
+			std::cout << grid[(i * 9) + j] << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -71,32 +73,52 @@ bool IsLegalRowColumnWhatever(const std::vector<int> & vector)
 	return true;
 }
 
-bool IsFourByFourSudokuLegal(const std::vector<int> & grid)
+bool IsNineByNineSudokuLegal(const std::vector<int> & grid)
 {
-	int rows[] = { 0, 4, 8, 12 };
+    // initialize rows array 
+    int rows[SIZE];
+    for(int i = 0; i < SIZE; ++i)
+    {
+        rows[i] = (i * 9);
+    }
+
 	for (const int & i : rows)
 	{
-		std::vector<int> v{ grid[i], grid[i + 1], grid[i + 2], grid[i + 3] };
+        std::vector<int> v;
+        for(int j = 0; j < SIZE; ++j)
+        {
+            v.push_back(grid[i + j]);
+        }
+
 		if (IsLegalRowColumnWhatever(v) == false)
 		{
 			return false;
 		}
 	}
 
-	int columns[] = { 0, 1, 2, 3 };
+	int columns[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+
 	for (const int & i : columns)
 	{
-		std::vector<int> v{ grid[i], grid[i + 4], grid[i + 8], grid[i + 12] };
+        std::vector<int> v;
+        for(int j = 0; j < SIZE; ++j)
+        {
+            v.push_back(grid[i + (j * 9)]);
+        }
+
 		if (IsLegalRowColumnWhatever(v) == false)
 		{
 			return false;
 		}
 	}
 
-	int squares[] = { 0, 2, 8, 10 };
+	int squares[] = { 0, 3, 6, 27, 30, 33, 54, 57, 60 };
 	for (const int & i : squares)
 	{
-		std::vector<int> v{ grid[i], grid[i + 1], grid[i + 4], grid[i + 5] };
+		std::vector<int> v{ grid[i], grid[i + 1], grid[i + 2],
+                            grid[i + 9], grid[i + 10], grid[i + 11],
+                            grid[i + 18], grid[i + 19], grid[i + 20] }; 
+
 		if (IsLegalRowColumnWhatever(v) == false)
 		{
 			return false;
@@ -106,35 +128,57 @@ bool IsFourByFourSudokuLegal(const std::vector<int> & grid)
 	return true;
 }
 
-void GenerateValidFourByFourGrids(std::vector<int> & grid, int index)
+void GenerateValidNineByNineGrids(std::vector<int> & grid, int index)
 {
-	if (index == 16)
+	if (index == 81)
 	{
-		PrintFourByFourGrid(grid);
+		PrintNineByNineGrid(grid);
 	}
 	else
-	{
-		for (int i = 1; i <= 4; ++i)
-		{
-			grid[index] = i;
-			if (IsFourByFourSudokuLegal(grid) == true)
-			{
-				GenerateValidFourByFourGrids(grid, index + 1);
-			}
-		}
-		grid[index] = 0;
-	}
+    {
+        if(grid[index] == 0)
+        {
+		    for (int i = 1; i <= 9; ++i)
+		    {
+		        grid[index] = i;
+		        if (IsNineByNineSudokuLegal(grid) == true)
+		        {
+		    	    GenerateValidNineByNineGrids(grid, index + 1);
+		        }
+            
+		    }
+		    grid[index] = 0;
+	    }
+        else
+        {
+            GenerateValidNineByNineGrids(grid, index + 1);
+        }
+    }
 }
 
-void GenerateAllValidFourByFourGrids()
+void GenerateAllValidNineByNineGrids()
 {
-	std::vector<int> grid(16, 0);
-	GenerateValidFourByFourGrids(grid, 0);
+	//std::vector<int> grid(81, 0);
+	//GenerateValidNineByNineGrids(grid, 0);
+
+    std::vector<int> grid2 {  8, 7, 6, 9, 0, 0, 0, 0, 0,
+        				      0, 1, 0, 0, 0, 6, 0, 0, 0,
+   				              0, 4, 0, 3, 0, 5, 8, 0, 0,
+        				      4, 0, 0, 0, 0, 0, 2, 1, 0,
+        				      0, 9, 0, 5, 0, 0, 0, 0, 0,
+        				      0, 5, 0, 0, 4, 0, 3, 0, 6,
+				              0, 2, 9, 0, 0, 0, 0, 0, 8,
+        				      0, 0, 4, 6, 9, 0, 1, 7, 3,
+        				      0, 0, 0, 0, 0, 1, 0, 0, 4 } ;
+
+    GenerateValidNineByNineGrids(grid2, 0);
 }
+
 
 int main()
 {
-	GenerateAllValidFourByFourGrids();
-	system("PAUSE");
+	GenerateAllValidNineByNineGrids();
+
+	//system("PAUSE");
 	return 0;
 }
